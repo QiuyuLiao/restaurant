@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Order History</title>
+</head>
+<body>
+    <h1>Your Order History</h1>
+    <a href="/logout"><button>Logout</button></a>
+    <a href="/booking"><button>Back to Booking</button></a>
+
+    <table border="1">
+        <thead>
+            <tr>
+                <th>Order ID</th>
+                <th>Table ID</th>
+                <th>Capacity</th>
+                <th>Reserved At</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for record in history %}
+            <tr>
+                <td>{{ record.order_id }}</td>
+                <td>{{ record.table_id }}</td>
+                <td>{{ record.capacity }}</td>
+                <td>{{ record.reserved_at }}</td>
+                <td>
+                    <!-- Write Review Button -->
+                    <form action="/add_review/{{ record.table_id }}" method="POST">
+                        <textarea name="review_text" placeholder="Write your review here..." required></textarea>
+                        <button type="submit">Submit Review</button>
+                    </form>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</body>
+</html>

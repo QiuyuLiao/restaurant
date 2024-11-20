@@ -1,11 +1,13 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Restaurant App</title>
+    <title>Restaurant Admin Dashboard</title>
 </head>
 <body>
-    <h1>Welcome to the Restaurant Menu App!</h1>
+    <h1>Welcome to the Restaurant Admin Dashboard!</h1>
+    <a href="/logout"><button>Logout</button></a>
 
+    <!-- Users Section -->
     <h2>Registered Users:</h2>
     <table border="1" id="users-table">
         <thead>
@@ -50,7 +52,53 @@
         <button type="button" onclick="addUser()">Add User</button>
     </form>
 
+    <!-- Tables Section -->
+    <h2>Available Tables:</h2>
+    <table border="1" id="tables-table">
+        <thead>
+            <tr>
+                <th>Table ID</th>
+                <th>Available</th>
+                <th>Capacity</th>
+                <th>Reserved By</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for table in tables %}
+            <tr data-tableid="{{ table.table_id }}">
+                <td>{{ table.table_id }}</td>
+                <td>{{ 'Yes' if table.isAvailable else 'No' }}</td>
+                <td>{{ table.capacity }}</td>
+                <td>
+                    {% if not table.isAvailable and table.reserved_by %}
+                        Reserved by {{ table.reserved_by_username }}
+                    {% else %}
+                        Available
+                    {% endif %}
+                </td>
+                <td>
+                    <button onclick="updateTable('{{ table.table_id }}')">Update</button>
+                    <button onclick="deleteTable('{{ table.table_id }}')">Delete</button>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    <h2>Add New Table:</h2>
+    <form id="add-table-form">
+        <label>
+            Available:
+            <input type="checkbox" id="is_available">
+        </label>
+        <input type="number" id="capacity" placeholder="Capacity" required>
+        <button type="button" onclick="addTable()">Add Table</button>
+    </form>
+
     <script>
+        // User Functions
+
         // Add User
         async function addUser() {
             const data = {
@@ -95,6 +143,56 @@
         // Delete User
         async function deleteUser(userid) {
             const response = await fetch(`/delete_user/${userid}`, {
+                method: 'DELETE',
+            });
+
+            const result = await response.json();
+            alert(result.message);
+            location.reload();
+        }
+
+        // Table Functions
+
+        // Add Table
+        async function addTable() {
+            const data = {
+                isAvailable: document.getElementById('is_available').checked,
+                capacity: document.getElementById('capacity').value,
+            };
+
+            const response = await fetch('/add_table', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(data),
+            });
+
+            const result = await response.json();
+            alert(result.message);
+            location.reload();
+        }
+
+        // Update Table
+        async function updateTable(table_id) {
+            const row = document.querySelector(`tr[data-tableid='${table_id}']`);
+            const data = {
+                isAvailable: row.querySelector('.is-available').checked,
+                capacity: row.querySelector('.capacity').value,
+            };
+
+            const response = await fetch(`/update_table/${table_id}`, {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(data),
+            });
+
+            const result = await response.json();
+            alert(result.message);
+            location.reload();
+        }
+
+        // Delete Table
+        async function deleteTable(table_id) {
+            const response = await fetch(`/delete_table/${table_id}`, {
                 method: 'DELETE',
             });
 

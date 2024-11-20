@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Table Booking</title>
+</head>
+<body>
+    <h1>Welcome to the Table Booking Page!</h1>
+    <a href="/logout"><button>Logout</button></a> <!-- Logout Button -->
+    <a href="/order_history"><button>View Order History</button></a> <!-- Order History Button -->
+
+    <h2>Available Tables:</h2>
+    <table border="1">
+        <thead>
+            <tr>
+                <th>Table ID</th>
+                <th>Available</th>
+                <th>Capacity</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for table in tables %}
+            <tr>
+                <td>{{ table.table_id }}</td>
+                <td>{{ 'Yes' if table.isAvailable else 'No' }}</td>
+                <td>{{ table.capacity }}</td>
+                <td>
+                    {% if table.isAvailable %}
+                    <!-- Reserve Button -->
+                    <form action="/reserve_table/{{ table.table_id }}" method="POST" style="display:inline;">
+                        <button type="submit">Reserve</button>
+                    </form>
+                    {% elif table.reserved_by == session['user_id'] %}
+                    <!-- Cancel Button -->
+                    <form action="/cancel_reservation/{{ table.table_id }}" method="POST" style="display:inline;">
+                        <button type="submit">Cancel</button>
+                    </form>
+                    {% else %}
+                    <span>Not Available</span>
+                    {% endif %}
+                    <!-- View Reviews Button -->
+                    <a href="/view_reviews/{{ table.table_id }}">
+                        <button type="button">View Reviews</button>
+                    </a>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</body>
+</html>

@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>View Reviews</title>
+</head>
+<body>
+    <h1>Reviews for Table {{ table_id }}</h1>
+    <a href="/booking"><button>Back to Booking</button></a> <!-- Back to Booking -->
+
+    {% if reviews and reviews|length > 0 %}
+    <table border="1">
+        <thead>
+            <tr>
+                <th>Username</th>
+                <th>Review</th>
+                <th>Reviewed At</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for review in reviews %}
+            <tr>
+                <td>{{ review.username }}</td>
+                <td>{{ review.review_text }}</td>
+                <td>{{ review.created_at }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    {% else %}
+    <p>No reviews for this table yet.</p>
+    {% endif %}
+</body>
+</html>
