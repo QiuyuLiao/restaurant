@@ -45,3 +45,28 @@ def get_user_by_email(email):
         return dict(user) if user else None
     finally:
         conn.close()
+
+# Function to update a user
+def update_user(userid, username, phone_number, is_admin):
+    conn = get_db_connection()
+    try:
+        conn.execute(
+            """
+            UPDATE userdata
+            SET username = ?, phone_number = ?, isAdmin = ?
+            WHERE userid = ?
+            """,
+            (username, phone_number, is_admin, userid),
+        )
+        conn.commit()
+    finally:
+        conn.close()
+
+# Function to delete a user
+def delete_user(userid):
+    conn = get_db_connection()
+    try:
+        conn.execute("DELETE FROM userdata WHERE userid = ?", (userid,))
+        conn.commit()
+    finally:
+        conn.close()

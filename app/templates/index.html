@@ -7,8 +7,7 @@
     <h1>Welcome to the Restaurant Menu App!</h1>
 
     <h2>Registered Users:</h2>
-    {% if users %}
-    <table border="1">
+    <table border="1" id="users-table">
         <thead>
             <tr>
                 <th>User ID</th>
@@ -16,22 +15,93 @@
                 <th>Username</th>
                 <th>Phone Number</th>
                 <th>Admin</th>
+                <th>Actions</th>
             </tr>
         </thead>
         <tbody>
             {% for user in users %}
-            <tr>
+            <tr data-userid="{{ user.userid }}">
                 <td>{{ user.userid }}</td>
                 <td>{{ user.email }}</td>
-                <td>{{ user.username }}</td>
-                <td>{{ user.phone_number }}</td>
-                <td>{{ 'Yes' if user.isAdmin else 'No' }}</td>
+                <td><input type="text" value="{{ user.username }}" class="username"></td>
+                <td><input type="text" value="{{ user.phone_number }}" class="phone-number"></td>
+                <td>
+                    <input type="checkbox" class="is-admin" {% if user.isAdmin %}checked{% endif %}>
+                </td>
+                <td>
+                    <button onclick="updateUser('{{ user.userid }}')">Update</button>
+                    <button onclick="deleteUser('{{ user.userid }}')">Delete</button>
+                </td>
             </tr>
             {% endfor %}
         </tbody>
     </table>
-    {% else %}
-    <p>No users found.</p>
-    {% endif %}
+
+    <h2>Add New User:</h2>
+    <form id="add-user-form">
+        <input type="text" id="email" placeholder="Email" required>
+        <input type="text" id="username" placeholder="Username" required>
+        <input type="password" id="password" placeholder="Password" required>
+        <input type="text" id="phone_number" placeholder="Phone Number" required>
+        <label>
+            Admin:
+            <input type="checkbox" id="is_admin">
+        </label>
+        <button type="button" onclick="addUser()">Add User</button>
+    </form>
+
+    <script>
+        // Add User
+        async function addUser() {
+            const data = {
+                email: document.getElementById('email').value,
+                username: document.getElementById('username').value,
+                password: document.getElementById('password').value,
+                phone_number: document.getElementById('phone_number').value,
+                isAdmin: document.getElementById('is_admin').checked,
+            };
+
+            const response = await fetch('/add_user', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(data),
+            });
+
+            const result = await response.json();
+            alert(result.message);
+            location.reload();
+        }
+
+        // Update User
+        async function updateUser(userid) {
+            const row = document.querySelector(`tr[data-userid='${userid}']`);
+            const data = {
+                username: row.querySelector('.username').value,
+                phone_number: row.querySelector('.phone-number').value,
+                isAdmin: row.querySelector('.is-admin').checked,
+            };
+
+            const response = await fetch(`/update_user/${userid}`, {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(data),
+            });
+
+            const result = await response.json();
+            alert(result.message);
+            location.reload();
+        }
+
+        // Delete User
+        async function deleteUser(userid) {
+            const response = await fetch(`/delete_user/${userid}`, {
+                method: 'DELETE',
+            });
+
+            const result = await response.json();
+            alert(result.message);
+            location.reload();
+        }
+    </script>
 </body>
 </html>
