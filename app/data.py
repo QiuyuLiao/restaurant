@@ -13,7 +13,7 @@ db_path = os.path.join(database_dir, 'restaurant.db')
 conn = sqlite3.connect(db_path)
 curr = conn.cursor()
 
-# Create User table with a phone_number attribute
+# Create User table
 curr.execute("""
 CREATE TABLE IF NOT EXISTS userdata(
     userid INTEGER PRIMARY KEY,
@@ -25,7 +25,43 @@ CREATE TABLE IF NOT EXISTS userdata(
 )
 """)
 
-print("User table with phone_number created successfully.")
+# Create Tables table
+curr.execute("""
+CREATE TABLE IF NOT EXISTS tables(
+    table_id INTEGER PRIMARY KEY AUTOINCREMENT,
+    isAvailable BOOLEAN NOT NULL DEFAULT 1,
+    capacity INTEGER NOT NULL,
+    reserved_by INTEGER DEFAULT NULL,
+    FOREIGN KEY (reserved_by) REFERENCES userdata(userid) ON DELETE SET NULL
+)
+""")
+
+# Create Order History table
+curr.execute("""
+CREATE TABLE IF NOT EXISTS order_history(
+    order_id INTEGER PRIMARY KEY AUTOINCREMENT,
+    user_id INTEGER NOT NULL,
+    table_id INTEGER NOT NULL,
+    reserved_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (user_id) REFERENCES userdata(userid) ON DELETE CASCADE,
+    FOREIGN KEY (table_id) REFERENCES tables(table_id) ON DELETE CASCADE
+)
+""")
+
+# Create Reviews table
+curr.execute("""
+CREATE TABLE IF NOT EXISTS reviews(
+    review_id INTEGER PRIMARY KEY AUTOINCREMENT,
+    user_id INTEGER NOT NULL,
+    table_id INTEGER NOT NULL,
+    review_text TEXT NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (user_id) REFERENCES userdata(userid) ON DELETE CASCADE,
+    FOREIGN KEY (table_id) REFERENCES tables(table_id) ON DELETE CASCADE
+)
+""")
+
+print("Database setup completed successfully.")
 
 # Commit and close the connection
 conn.commit()

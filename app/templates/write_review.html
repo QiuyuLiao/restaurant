@@ -1,0 +1,15 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Write Review</title>
+</head>
+<body>
+    <h1>Write a Review for Table {{ table_id }}</h1>
+    <form action="/add_review/{{ table_id }}" method="POST">
+        <textarea name="review_text" placeholder="Write your review here..." required></textarea>
+        <br>
+        <button type="submit">Submit Review</button>
+    </form>
+    <a href="/order_history"><button>Back to Order History</button></a>
+</body>
+</html>
