@@ -1,5 +1,5 @@
 from flask import Blueprint, request, jsonify, render_template
-from .db_utils import add_user, get_all_users, get_user_by_email
+from .db_utils import add_user, get_all_users, get_user_by_email, update_user, delete_user
 
 main = Blueprint('main', __name__)
 
@@ -29,16 +29,25 @@ def add_user_route():
     add_user(email, username, password, phone_number, is_admin)
     return jsonify({"message": f"User {username} added successfully!"})
 
-# Route to get all users
-@main.route('/get_users', methods=['GET'])
-def get_users_route():
-    users = get_all_users()
-    return jsonify(users)
+# Route to update a user
+@main.route('/update_user/<int:userid>', methods=['PUT'])
+def update_user_route(userid):
+    data = request.get_json()
 
-# Route to get a user by email
-@main.route('/get_user/<email>', methods=['GET'])
-def get_user_route(email):
-    user = get_user_by_email(email)
-    if user:
-        return jsonify(user)
-    return jsonify({"error": "User not found"}), 404
+    # Extract user data from the request
+    username = data.get('username')
+    phone_number = data.get('phone_number')
+    is_admin = data.get('isAdmin', False)
+
+    if not username or not phone_number:
+        return jsonify({"error": "All fields (username, phone_number) are required"}), 400
+
+    # Update the user in the database
+    update_user(userid, username, phone_number, is_admin)
+    return jsonify({"message": f"User {userid} updated successfully!"})
+
+# Route to delete a user
+@main.route('/delete_user/<int:userid>', methods=['DELETE'])
+def delete_user_route(userid):
+    delete_user(userid)
+    return jsonify({"message": f"User {userid} deleted successfully!"})
